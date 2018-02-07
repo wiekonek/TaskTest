@@ -1,10 +1,9 @@
-using System;
 using System.Net;
 using System.Net.Http;
-using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Azure.WebJobs.Host;
+using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Table;
 
 namespace ServerlessWiekonek.Users
@@ -35,8 +34,15 @@ namespace ServerlessWiekonek.Users
 
 
       TableOperation updateOperation = TableOperation.Replace(user.ToUser(candidateName));
-      TableResult result = outTable.Execute(updateOperation);
-      return new HttpResponseMessage((HttpStatusCode)result.HttpStatusCode);
+      try
+      {
+        TableResult result = outTable.Execute(updateOperation);
+        return new HttpResponseMessage((HttpStatusCode)result.HttpStatusCode);
+      }
+      catch (StorageException e)
+      {
+        return new HttpResponseMessage((HttpStatusCode)e.RequestInformation.HttpStatusCode);
+      }
     }
   }
 }
