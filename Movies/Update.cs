@@ -6,34 +6,34 @@ using Microsoft.Azure.WebJobs.Host;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Table;
 
-namespace ServerlessWiekonek.Users
+namespace ServerlessWiekonek.Movies
 {
   public static class Update
   {
-    [FunctionName("Users_Update")]
+    [FunctionName("Movies_Update")]
     public static HttpResponseMessage Run(
-      [HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = "{candidateName:length(1,20)}/users/{id:length(32,38)}")]UserApi user,
+      [HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = "{candidateName:length(1,20)}/movies/{id:length(32,38)}")]MovieApi movie,
       string candidateName,
       string id,
-      [Table("users", Connection = "AzureWebJobsStorage")]CloudTable outTable,
+      [Table("movies", Connection = "AzureWebJobsStorage")]CloudTable outTable,
       TraceWriter log)
     {
-      user.Id = id;
+      movie.Id = id;
 
 
-      if (string.IsNullOrEmpty(user.FirstName))
+      if (string.IsNullOrEmpty(movie.Title))
       {
         return new HttpResponseMessage(HttpStatusCode.BadRequest)
         {
-          Content = new StringContent("A non-empty Firstname must be specified.")
+          Content = new StringContent("A non-empty Title must be specified.")
         };
       }
 
-      var userToUpdate = user.ToUser(candidateName);
-      userToUpdate.ETag = "*";
+      var movieToUpdate = movie.ToMovie(candidateName);
+      movieToUpdate.ETag = "*";
 
 
-      TableOperation updateOperation = TableOperation.Replace(user.ToUser(candidateName));
+      TableOperation updateOperation = TableOperation.Replace(movie.ToMovie(candidateName));
       try
       {
         TableResult result = outTable.Execute(updateOperation);

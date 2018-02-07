@@ -8,16 +8,16 @@ using Microsoft.Azure.WebJobs.Host;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Table;
 
-namespace ServerlessWiekonek.Users
+namespace ServerlessWiekonek.Movies
 {
   public static class Delete
   {
-    [FunctionName("Users_Delete")]
+    [FunctionName("Movies_Delete")]
     public static HttpResponseMessage Run(
-      [HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "{candidateName:length(1,20)}/users/{id:length(32,38)}")]HttpRequestMessage req,
+      [HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "{candidateName:length(1,20)}/movies/{id:length(32,38)}")]HttpRequestMessage req,
       string candidateName,
       string id,
-      [Table("users", Connection = "AzureWebJobsStorage")]CloudTable outTable,
+      [Table("movies", Connection = "AzureWebJobsStorage")]CloudTable outTable,
       TraceWriter log)
     {
       var updateOperation = TableOperation.Delete(new TableEntity(candidateName, id) { ETag = "*" });
