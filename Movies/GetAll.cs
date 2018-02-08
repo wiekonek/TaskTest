@@ -18,6 +18,12 @@ namespace ServerlessWiekonek.Movies
       [Table("movies", Connection = "AzureWebJobsStorage")]IQueryable<Movie> inTable,
       TraceWriter log)
     {
+      var errResponse = Computation.CheckAuthorization(req.Headers.Authorization);
+      if (errResponse != null)
+      {
+        return errResponse;
+      }
+
       var query =
         from movie in inTable
         where movie.PartitionKey == candidateName

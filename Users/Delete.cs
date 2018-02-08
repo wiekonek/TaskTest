@@ -20,6 +20,12 @@ namespace ServerlessWiekonek.Users
       [Table("users", Connection = "AzureWebJobsStorage")]CloudTable outTable,
       TraceWriter log)
     {
+      var errResponse = Computation.CheckCandidateName(candidateName);
+      if (errResponse != null)
+      {
+        return errResponse;
+      }
+
       var updateOperation = TableOperation.Delete(new TableEntity(candidateName, id) { ETag = "*" });
 
       try

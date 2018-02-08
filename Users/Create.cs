@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Azure.WebJobs.Host;
-using Microsoft.WindowsAzure.Storage.Table;
 
 
 namespace ServerlessWiekonek.Users
@@ -19,6 +18,12 @@ namespace ServerlessWiekonek.Users
       [Table("users", Connection = "AzureWebJobsStorage")]ICollector<User> outTable,
       TraceWriter log)
     {
+      var errResponse = Computation.CheckCandidateName(candidateName);
+      if (errResponse != null)
+      {
+        return errResponse;
+      }
+
       var data = await req.Content.ReadAsAsync<UserApi>();
 
       var userApi = new UserApi()

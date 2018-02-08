@@ -18,6 +18,17 @@ namespace ServerlessWiekonek.Movies
       [Table("movies", Connection = "AzureWebJobsStorage")]ICollector<Movie> outTable,
       TraceWriter log)
     {
+      var errResponse = Computation.CheckCandidateName(candidateName);
+      if (errResponse != null)
+      {
+        return errResponse;
+      }
+      errResponse = Computation.CheckAuthorization(req.Headers.Authorization);
+      if (errResponse != null)
+      {
+        return errResponse;
+      }
+
       var data = await req.Content.ReadAsAsync<MovieApi>();
 
       var movieApi = new MovieApi()

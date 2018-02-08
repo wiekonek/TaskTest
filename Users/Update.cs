@@ -18,6 +18,12 @@ namespace ServerlessWiekonek.Users
       [Table("users", Connection = "AzureWebJobsStorage")]CloudTable outTable,
       TraceWriter log)
     {
+      var errResponse = Computation.CheckCandidateName(candidateName);
+      if (errResponse != null)
+      {
+        return errResponse;
+      }
+
       user.Id = id;
 
 

@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Http;
+using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Azure.WebJobs.Host;
@@ -11,13 +12,26 @@ namespace ServerlessWiekonek.Movies
   public static class Update
   {
     [FunctionName("Movies_Update")]
-    public static HttpResponseMessage Run(
-      [HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = "{candidateName:length(1,20)}/movies/{id:length(32,38)}")]MovieApi movie,
+    public static async Task<HttpResponseMessage> Run(
+      [HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = "{candidateName:length(1,20)}/movies/{id:length(32,38)}")]HttpRequestMessage req,
       string candidateName,
       string id,
       [Table("movies", Connection = "AzureWebJobsStorage")]CloudTable outTable,
       TraceWriter log)
     {
+
+      var errResponse = Computation.CheckCandidateName(candidateName);
+      if (errResponse != null)
+      {
+        return errResponse;
+      }
+      errResponse = Computation.CheckAuthorization(req.Headers.Authorization);
+      if (errResponse != null)
+      {
+        return errResponse;
+      }
+
+      var movie = await req.Content.ReadAsAsync<MovieApi>();
       movie.Id = id;
 
 
